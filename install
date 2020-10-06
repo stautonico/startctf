@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+from configparser import ConfigParser
+import os
+import sys
+
+
+def generate_config():
+    """
+    Config format should be as such:
+    [title]
+    name = <YOUR_NAME> (username by default)
+
+    [dir]
+    home_dir = $HOME
+
+    [tools]
+    net_scanner = nmap (default)
+
+    :return:
+    """
+    current_user = os.getlogin()
+
+    home_dir = os.popen(f"eval echo ~{current_user}").read().replace("\n", "")
+
+    config_dir = os.path.join(home_dir, ".startctf")
+
+    config = ConfigParser()
+
+    sections = ["title", "dir", "tools"]
+    for section in sections:
+        config.add_section(section)
+
+    config.set("title", "name", current_user)
+
+    config.set("dir", "home_dir", home_dir)
+
+    config.set("tools", "net_scanner", "/usr/bin/nmap")
+
+    if not os.path.exists(config_dir):
+        print(f"Making directory {os.path.join(home_dir, '.startctf')}")
+        os.mkdir(os.path.join(home_dir, ".startctf"))
+
+    with open(os.path.join(config_dir, "ctf.conf"), "w") as f:
+        config.write(f)
+
+    # Change the owner of the config dir to the current user
+    os.system(f"chown -R {current_user}:{current_user} {config_dir}")
+
+    # Secure permissions of the config file
+    os.system(f"chmod 600 {os.path.join(config_dir, 'ctf.conf')}")
+
+
+def install_bin():
+    os.system("cp ./startctf.py /usr/local/bin/startctf")
+
+
+if __name__ == "__main__":
+    if not os.getegid() == 0:
+        sys.exit("This script must be run as root!")
+    generate_config()
+    install_bin()

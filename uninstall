@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+from configparser import ConfigParser
+import os
+import sys
+
+
+def remove_config():
+    current_user = os.getlogin()
+
+    home_dir = os.popen(f"eval echo ~{current_user}").read().replace("\n", "")
+
+    config_dir = os.path.join(home_dir, ".startctf")
+
+    os.system(f"rm -rv {config_dir}")
+
+
+def remove_bin():
+    os.system("rm -v /usr/local/bin/startctf")
+
+
+if __name__ == '__main__':
+    if not os.getegid() == 0:
+        sys.exit('This script must be run as root!')
+    remove_config()
+    remove_bin()
