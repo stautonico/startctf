@@ -142,8 +142,6 @@ if __name__ == '__main__':
 
     args = arg_parser.parse_args()
 
-    print(args)
-
     create_template(args.name)
     try:
         create_readme(args.name, args.ip)
@@ -183,3 +181,6 @@ if __name__ == '__main__':
     if enum_4_linux_thread:
         print(f"Waiting for enum4linux to finish")
         enum_4_linux_thread.join()
+
+
+# TODO: add new section to the README.md (Web directories)
