@@ -7,7 +7,8 @@ from threading import Thread
 from xml.dom import minidom
 
 current_user = os.getlogin()
-home_dir = os.popen(f"eval echo ~{current_user}").read().replace("\n", "")
+home_dir = os.popen(f"eval ech3"
+                    f"o ~{current_user}").read().replace("\n", "")
 
 config_dir = os.path.join(home_dir, ".startctf")
 
