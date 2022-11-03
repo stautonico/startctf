@@ -26,7 +26,6 @@ import os
 from configparser import ConfigParser
 import argparse
 from threading import Thread
-import os
 from datetime import datetime
 
 __author__ = "Steve Tautonico"
@@ -106,11 +105,6 @@ def colorize(text, color, modifiers=None):
     return output
 
 
-def error(text):
-    # TODO: Check the config file if we should print emojis
-    print(f"[{colorize('💀', Colors.FG.RED, {'bold': True})}] {colorize(text, Colors.FG.RED, {'bold': True})}")
-
-
 current_user = os.getlogin()
 home_dir = os.path.expanduser("~")
 
@@ -130,6 +124,25 @@ if len(config.sections()) == 0:
     print(
         f"[{colorize('FAIL', Colors.FG.RED, {'bold': True})}] {colorize(f'Failed to read configuration file', Colors.FG.RED, {'bold': True})}")
     exit(1)
+
+ARGS = None  # Our global parsed ARGS so everything can use it
+
+
+def error(text):
+    # TODO: Check the config file if we should print emojis
+    if not ARGS.silent:
+        print(f"[{colorize('💀', Colors.FG.RED, {'bold': True})}] {colorize(text, Colors.FG.RED, {'bold': True})}")
+
+
+def info(text):
+    if not ARGS.silent:
+        print(f"[{colorize('ℹ️', Colors.FG.BLUE, {'bold': True})}] {colorize(text, Colors.FG.BLUE)}")
+
+
+def success(text):
+    if not ARGS.silent:
+        print(f"[{colorize('✅', Colors.FG.GREEN, {'bold': True})}] {colorize(text, Colors.FG.GREEN)}")
+
 
 arg_parser = argparse.ArgumentParser(description="Create a CTF template")
 
@@ -156,6 +169,10 @@ arg_parser.add_argument("-e4l", "--enum4linux", action="store_true", help="Run e
 
 # Settings
 arg_parser.add_argument("--silent", "-s", action="store_true", help="Don't show any output from any of the tools")
+
+arg_parser.add_argument("-V", "--version",
+                        action="version",
+                        version=f"startctf v{__version__} by {__author__}\n(https://github.com/stautonico/startctf)")
 
 
 def create_directory_template(name):
@@ -185,18 +202,17 @@ def create_directory_template(name):
 def create_readme_template(ctf_name, ip=None):
     author_name = config.get("meta", "author") or current_user
     date = datetime.now().strftime("%m/%d/%Y")
-    readme = f"""#### {author_name} - {date}\n
+    readme = f"""#### {author_name} - {date}
 
 # {ctf_name}
----\n
-
+---
 ### Files
---- \n
+---
 [remote]/home/foo/bar.txt - Some file that contains text
 [local, in exfiltrated_docs]baz.txt - Some file that contains text
 
 ### Creds
----\n
+---
 username:password - Some credentials for ssh @someip
 """
 
@@ -207,22 +223,73 @@ username:password - Some credentials for ssh @someip
         f.write(readme)
 
 
+def run_command_in_xterm(command, title):
+    os.system(f"xterm -T \"{title}\" -e \"{command}\"")
+
+
+def run_command_in_background(command):
+    os.system(f"{command}")
+
+
+def run_nmap_scan():
+    if ARGS.ip:
+        command = f"nmap {ARGS.ip} -v"
+
+        if ARGS.nmap_Pn:
+            command += " -Pn"
+
+        if not ARGS.no_sV:
+            command += " -sV"
+
+        if ARGS.nmap_all:
+            command += " -p- -oN nmap/all_ports.nmap -oX nmap/xml/all_ports.xml"
+        else:
+            command += " -oN nmap/initial.nmap -oX nmap/xml/initial.xml"
+
+        # TODO: Change this message based on the verbosity level
+        info(f"Running nmap scan on {ARGS.ip}")
+
+        if ARGS.silent:
+            thread = Thread(target=run_command_in_background, args=(command,))
+        else:
+            thread = Thread(target=run_command_in_xterm, args=(command, f"nmap - {ARGS.ip}"))
+
+        thread.start()
+        return thread
+
+
+def run_enum4linux():
+    # TODO: Implement
+    return None
+
+
 if __name__ == '__main__':
-    args = arg_parser.parse_args()
+    # TODO: Add ability to use rustscan instead of nmap
+    ARGS = arg_parser.parse_args()
 
     # Create the directory template
-    create_directory_template(args.name)
+    create_directory_template(ARGS.name)
 
     # Create the README template
-    create_readme_template(args.name, args.ip)
+    create_readme_template(ARGS.name, ARGS.ip)
 
-# def code():
-#     os.system('xterm -e bash -c \"python /tmp/newbruh.py; exit\"')
-#
-# br = Thread(target=code)
-# br2 = Thread(target=code)
-#
-# br.start()
-# br2.start()
-# br.join()
-# br2.join()
+    nmap_thread = None
+    enum4linux_thread = None
+
+    # If we have any of the operation arguments, run the tools
+    if ARGS.nmap_scan:
+        nmap_thread = run_nmap_scan()
+
+    if ARGS.enum4linux:
+        enum4linux_thread = run_enum4linux()
+
+    # Wait for the threads to finish
+    if nmap_thread:
+        info("Waiting for nmap to finish...")
+        nmap_thread.join()
+
+    if enum4linux_thread:
+        info("Waiting for enum4linux to finish...")
+        enum4linux_thread.join()
+
+    success("All done, get to pwning!")
