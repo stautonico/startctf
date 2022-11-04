@@ -37,6 +37,15 @@ __version__ = "2.0"
 
 # This may be ugly, but I don"t want to have multiple files to make it easy to install
 # All utilities will be in this single file. Maybe I"ll split it up later
+
+def is_true(value):
+    return value.lower() in ("yes", "true", "t", "1")
+
+
+def is_false(value):
+    return value.lower() in ("no", "false", "f", "0")
+
+
 class Colors:
     RESET = "\033[0m"
     BOLD = "\033[01m"
@@ -200,7 +209,7 @@ def create_directory_template(name):
 
 
 def create_readme_template(ctf_name, ip=None):
-    author_name = config.get("meta", "author") or current_user
+    author_name = config.get("meta'", "author") or current_user
     date = datetime.now().strftime("%m/%d/%Y")
     readme = f"""#### {author_name} - {date}
 
