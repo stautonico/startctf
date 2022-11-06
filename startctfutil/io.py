@@ -1,5 +1,5 @@
 from .color import Colors, colorize
-from .shared import ARGS
+from .args import get_arg
 from . import is_true
 from .config import read_config_key
 from .args import get_arg
@@ -9,7 +9,7 @@ from .args import get_arg
 # TODO: Add option to use long info for output ("SUCCESS" instead of "+", "FAIL" instead of "X")
 
 def error(text):
-    if not ARGS.silent:
+    if not get_arg("silent"):
         if is_true(read_config_key("output", "emojis", "true")):
             print(f"[{colorize('💀', Colors.FG.RED, {'bold': True})}] {colorize(text, Colors.FG.RED)}")
         else:

@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 __author__ = "Steve Tautonico"
 __copyright__ = "Copyright 2022, Steve Tautonico"
@@ -6,8 +7,28 @@ __credits__ = ["Steve Tautonico"]
 __license__ = "MIT"
 __version__ = "2.0"
 
+
+def run_command_and_get_output(command):
+    return subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT).decode("utf-8")
+
+
 CURRENT_USER = os.getlogin()
 HOME_DIR = os.path.expanduser("~")
+
+CONFIG_DEFAULT_VALUES = {
+    "meta": {
+        "author": CURRENT_USER,
+        "use_day_month_year": "false",
+    },
+    "tools": {
+        "nmap": run_command_and_get_output("which nmap") or None,
+    },
+    "output": {
+        "emojis": "true",
+        "include_field_templates": "true",
+    }
+}
+
 
 # Misc functions go here
 def is_true(value):

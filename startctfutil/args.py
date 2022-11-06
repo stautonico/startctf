@@ -1,6 +1,10 @@
 from . import __version__, __author__
 import argparse
 
+# from .shared import ARGS
+
+ARGS = None
+
 arg_parser = argparse.ArgumentParser(description="Create a CTF template")
 
 arg_parser.add_argument("name", type=str, help="The name of the ctf (also the name of the created dir)")
@@ -40,5 +44,17 @@ arg_parser.add_argument("-V", "--version",
                         version=f"startctf v{__version__} by {__author__}\n(https://github.com/stautonico/startctf)")
 
 
+def parse_args():
+    global ARGS
+    ARGS = arg_parser.parse_args()
+    print(ARGS)
+
+# def set_args(parsed_args):
+#     global ARGS
+#     ARGS = parsed_args
+
+
 def get_arg(name, default=None):
-    return arg_parser.parse_args().__dict__.get(name, default)
+    global ARGS
+    return ARGS.__dict__.get(name, default)
+    # return arg_parser.parse_args().__dict__.get(name, default)

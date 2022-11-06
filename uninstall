@@ -4,6 +4,8 @@ import os
 import sys
 
 
+# NOTE: In next version, add a flag to remove the config file as well
+# If the user ever re-downloads the tool, it would be nice to have the original config file
 def remove_config():
     current_user = os.getlogin()
 
