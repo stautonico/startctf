@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-from startctfutil.args import parse_args, get_arg
+import os
+
+from startctfutil.args import parse_args, get_arg, set_arg
 from startctfutil.config import init_config
-from startctfutil.files import create_directory_template, create_readme_template, parse_nmap_output
-from startctfutil.io import info, success
-from startctfutil.tools import run_nmap_scan
+from startctfutil.files import create_directory_template, create_readme_template, parse_nmap_output, parse_feroxbuster_output
+from startctfutil.io import info, success, warn
+from startctfutil.tools import run_nmap_scan, auto_scan
 
 
 def main():
@@ -17,6 +19,8 @@ def main():
     # TODO: Add a version to the config file so if future versions change the config format,
     #      the user can be notified and the config file can be updated
     # TODO: Use type hints everywhere
+    # TODO: Add option to overwrite existing files
+    # TODO: Add option to disable tables in generated READMEs
 
     # Create the directory template
     create_directory_template(get_arg("name"))
@@ -28,6 +32,10 @@ def main():
         info("Note: Spawned xterm windows may be stacked on top of each other, move them around to see them all")
 
     nmap_thread = None
+
+    if (not get_arg("nmap_scan") and not get_arg("nmap_all")) and get_arg("auto_scan"):
+        warn("Auto scan requires a nmap scan, ignoring auto scan...")
+        set_arg("auto_scan", False)
 
     # If we have any of the operation arguments, run the tools
     if get_arg("nmap_scan"):
@@ -41,9 +49,23 @@ def main():
 
         # Parse the nmap output
         if get_arg("nmap_all"):
-            parse_nmap_output("nmap/xml/all_ports.xml")
+            parse_nmap_output("logs/nmap/xml/all_ports.xml")
         else:
-            parse_nmap_output("nmap/xml/initial.xml")
+            parse_nmap_output("logs/nmap/xml/initial.xml")
+
+        if get_arg("auto_scan"):
+            threads = auto_scan()
+            for port, data in threads.items():
+                info(f"Waiting for {data['tool']} on port {port} to finish...")
+                thread = data.get("thread")
+                if thread:
+                    thread.join()
+                    success(f"{data['tool']} on port {port} finished")
+
+            if len(threads) > 0:
+                for file in os.listdir("logs/feroxbuster"):
+                    parse_feroxbuster_output(f"logs/feroxbuster/{file}")
+
 
     success("All done, get to pwning!")
 

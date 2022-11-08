@@ -23,6 +23,8 @@ arg_parser.add_argument("-nSV", "--no-sV", action="store_true",
                         help="Don't run nmap with the -sV flag (don't detect service versions)")
 
 # TODO: Add more tools
+arg_parser.add_argument("-as", "--auto-scan", action="store_true",
+                        help="Try to detect which services are running on the target and run the appropriate tools (-nS or -nSA required)")
 
 # Settings
 # TODO: Maybe add option to not popout new xterm windows
@@ -48,3 +50,9 @@ def parse_args():
 def get_arg(name, default=None):
     global ARGS
     return ARGS.__dict__.get(name, default)
+
+
+def set_arg(name, value):
+    # This should only be used in specific circumstances
+    global ARGS
+    ARGS.__dict__[name] = value

@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 from xml.dom import minidom
+from json import loads
 
 from startctfutil.io import error
 from startctfutil.config import read_config_key
@@ -17,12 +18,12 @@ def create_directory_template(name):
     os.mkdir(name)
     os.chdir(name)
 
-    # Make the directory to store nmap scan results
-    os.mkdir("nmap")
-    os.mkdir("nmap/xml")  # XML output
-
     # Make the directory for storing logs (from enum tools etc.)
     os.mkdir("logs")
+
+    os.makedirs("logs/feroxbuster")
+    # Make the directory to store nmap scan results
+    os.makedirs("logs/nmap/xml")
 
     # Make the directory for exfiltrated documents
     os.mkdir("exfiltrated_docs")
@@ -64,26 +65,64 @@ def create_readme_template(ctf_name, ip=None):
 
 
 def parse_nmap_output(output_file):
-    result = minidom.parse(output_file)
-    ports = result.getElementsByTagName("port")
+    result = parse_nmap_output_to_object(output_file)
 
     with open("README.md", "a") as f:
         f.write("\n### Ports\n---\n")
         # Write the headers
         f.write("| Port | Status | Service |\n")
         f.write("|:----:|:------:|:-------:|\n")
-        for port in ports:
-            state = port.childNodes[0]
-            try:
-                service = port.childNodes[1]
-            except IndexError:
-                service = None
+        for port, info in result.items():
+            f.write(f"| {port} | {info['status']} | {info['service']} |\n")
 
-            port_number = port.attributes["portid"].value
-            port_status = state.attributes["state"].value
-            if service:
-                service_name = service.attributes["name"].value
-            else:
-                service_name = "unknown"
 
-            f.write(f"| {port_number} | {port_status} | {service_name} |\n")
+def parse_nmap_output_to_object(xml_file):
+    result = minidom.parse(xml_file)
+    ports = result.getElementsByTagName("port")
+
+    output = {}
+
+    for port in ports:
+        state = port.childNodes[0]
+        try:
+            service = port.childNodes[1]
+        except IndexError:
+            service = None
+
+        port_number = port.attributes["portid"].value
+        port_status = state.attributes["state"].value
+        if service:
+            service_name = service.attributes["name"].value
+        else:
+            service_name = "unknown"
+
+        output[port_number] = {
+            "status": port_status,
+            "service": service_name
+        }
+
+    return output
+
+
+def parse_feroxbuster_output(output_file):
+    with open(output_file, "r") as f:
+        data = f.read()
+
+    output = []
+    for line in data.splitlines():
+        if line.startswith("{"):
+            data = loads(line)
+            if data.get("type") != "statistics":
+                output.append([data.get('path', '???'), data.get('status', '???'), data.get("url", "#")])
+
+    port = output_file.split("/")[-1].split(".")[0]
+
+    output_table = "|Path|Status|\n" \
+                   "|:---:|:----:|\n"
+
+    for path, status, url in output:
+        output_table += f"|[{path}]({url})|{status}|\n"
+
+    with open("README.md", "a") as f:
+        f.write(f"\n### Discovered Web Paths (Port {port})\n---\n")
+        f.write(output_table)
