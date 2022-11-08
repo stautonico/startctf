@@ -1,8 +1,10 @@
 import os
 import subprocess
-from .args import get_arg
 from threading import Thread
-from .io import info
+
+from startctfutil.args import get_arg
+from startctfutil.io import info, warn
+from startctfutil.config import read_config_key
 
 
 def run_command_in_xterm(command, title):
@@ -17,7 +19,19 @@ def run_command_in_background(command):
 def run_nmap_scan():
     # print(f"Args in our nmap scan: {ARGS}")
     if get_arg("ip"):
-        command = f"nmap {get_arg('ip')} -v"
+        # Check if we can find nmap
+        nmap_path = read_config_key("tools", "nmap")
+
+        # TODO: Maybe make this an error (and exit)  rather than a warning?
+        if not os.path.exists(nmap_path):
+            if nmap_path is None:
+                warn("Nmap not found, please install it or set the path in the config.")
+            else:
+                warn(f"Nmap not found at '{nmap_path}', please install it or set the path in the config.")
+
+            return
+
+        command = f"{nmap_path} {get_arg('ip')} -v"
 
         if get_arg("nmap_Pn"):
             command += " -Pn"
@@ -41,17 +55,5 @@ def run_nmap_scan():
         thread.start()
         return thread
 
-
-def run_enum4linux():
-    if get_arg("ip"):
-        command = f"enum4linux -a {get_arg('ip')} | tee logs/enum4linux.log"
-        # TODO: Change this message based on the verbosity level
-        info(f"Running enum4linux scan on {get_arg('ip')}")
-
-        if get_arg("silent") or get_arg("silent_tools"):
-            thread = Thread(target=run_command_in_background, args=(command,))
-        else:
-            thread = Thread(target=run_command_in_xterm, args=(command, f"enum4linux - {ARGS.ip}"))
-
-        thread.start()
-        return thread
+    else:
+        warn("No IP address provided, skipping nmap scan.")

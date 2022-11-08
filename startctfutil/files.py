@@ -2,15 +2,15 @@ import os
 from datetime import datetime
 from xml.dom import minidom
 
-from . import io
-from .config import read_config_key
-from . import is_true
+from startctfutil.io import error
+from startctfutil.config import read_config_key
+from startctfutil import is_true
 
 
 def create_directory_template(name):
     # First, check if the directory exists
     if os.path.exists(name):
-        io.error(f"A directory with the name {name} already exists")
+        error(f"A directory with the name {name} already exists")
         exit(1)
 
     # Create the directory that will hold the ctf files
@@ -21,7 +21,7 @@ def create_directory_template(name):
     os.mkdir("nmap")
     os.mkdir("nmap/xml")  # XML output
 
-    # Make the directory for storing logs (from enum tools etc)
+    # Make the directory for storing logs (from enum tools etc.)
     os.mkdir("logs")
 
     # Make the directory for exfiltrated documents

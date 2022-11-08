@@ -1,8 +1,8 @@
-from .color import Colors, colorize
-from .args import get_arg
-from . import is_true
-from .config import read_config_key
-from .args import get_arg
+from startctfutil.color import Colors, colorize
+from startctfutil import is_true
+from startctfutil.config import read_config_key
+from startctfutil.args import get_arg
+
 
 # TODO: Add option in config to output message in white text
 # TODO: Add option in config to disable colored output
@@ -18,7 +18,6 @@ def error(text):
 
 def warn(text):
     if not get_arg("silent", "false") and not get_arg("no_warnings", "false"):
-    # if not ARGS.silent or ARGS.no_warnings:
         if is_true(read_config_key("output", "emojis", "true")):
             print(f"[{colorize('⚠️', Colors.FG.YELLOW, {'bold': True})}] {colorize(text, Colors.FG.YELLOW)}")
         else:
