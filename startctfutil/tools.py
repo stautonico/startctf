@@ -39,7 +39,7 @@ def check_tool_path(tool: str):
 
         return False
 
-    return True
+    return tool_path
 
 
 def run_nmap_scan():
@@ -71,25 +71,22 @@ def run_nmap_scan():
         warn("No IP address provided, skipping nmap scan.")
 
 
-def run_feroxbuster_scan(port):
-    has_feroxbuster = check_tool_path("feroxbuster")
-    if not has_feroxbuster:
+def run_ffuf_scan(port):
+    tool_path = check_tool_path("ffuf")
+    if not tool_path:
         return
 
     wordlist = read_config_key("tools", "directory_list")
     if not os.path.exists(wordlist):
-        if STATE.get("failed_feroxbuster"):
+        if STATE.get("failed_ffuf"):
             return
         else:
-            STATE["failed_feroxbuster"] = True
+            STATE["failed_ffuf"] = True
         warn(f"Directory list not found at '{wordlist}', please set the path in the config.")
         return
 
-    tool_path = read_config_key("tools", "feroxbuster")
-
-    command = f"{tool_path} --url http://{get_arg('ip')}:{port} --wordlist {wordlist} --json --output logs/feroxbuster/{port}.json -k"
-
-    thread = run(command, f"feroxbuster - {get_arg('ip')}:{port}")
+    command = f"{tool_path} -u http://{get_arg('ip')}:{port}/FUZZ -w {wordlist} -o logs/ffuf/{port}.json -of json"
+    thread = run(command, f"ffuf - {get_arg('ip')}:{port}")
     return thread
 
 
@@ -109,8 +106,8 @@ def auto_scan():
             if "http" in info["service"]:
                 # TODO: Support gobuster
                 threads[port] = {
-                    "tool": "feroxbuster",
-                    "thread": run_feroxbuster_scan(port)
+                    "tool": "ffuf",
+                    "thread": run_ffuf_scan(port)
                 }
 
     return threads

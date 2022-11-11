@@ -3,7 +3,7 @@ import os
 
 from startctfutil.args import parse_args, get_arg, set_arg
 from startctfutil.config import init_config
-from startctfutil.files import create_directory_template, create_readme_template, parse_nmap_output, parse_feroxbuster_output
+from startctfutil.files import create_directory_template, create_readme_template, parse_nmap_output, parse_ffuf_output
 from startctfutil.io import info, success, warn
 from startctfutil.tools import run_nmap_scan, auto_scan
 
@@ -63,8 +63,10 @@ def main():
                     success(f"{data['tool']} on port {port} finished")
 
             if len(threads) > 0:
-                for file in os.listdir("logs/feroxbuster"):
-                    parse_feroxbuster_output(f"logs/feroxbuster/{file}")
+                # TODO: Do this better
+                for file in os.listdir("logs/ffuf"):
+                    if file.endswith(".json"):
+                        parse_ffuf_output(f"logs/ffuf/{file}")
 
 
     success("All done, get to pwning!")

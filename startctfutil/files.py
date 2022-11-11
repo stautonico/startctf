@@ -21,7 +21,7 @@ def create_directory_template(name):
     # Make the directory for storing logs (from enum tools etc.)
     os.mkdir("logs")
 
-    os.makedirs("logs/feroxbuster")
+    os.makedirs("logs/ffuf")
     # Make the directory to store nmap scan results
     os.makedirs("logs/nmap/xml")
 
@@ -104,25 +104,24 @@ def parse_nmap_output_to_object(xml_file):
     return output
 
 
-def parse_feroxbuster_output(output_file):
-    with open(output_file, "r") as f:
-        data = f.read()
-
-    output = []
-    for line in data.splitlines():
-        if line.startswith("{"):
-            data = loads(line)
-            if data.get("type") != "statistics":
-                output.append([data.get('path', '???'), data.get('status', '???'), data.get("url", "#")])
-
+def parse_ffuf_output(output_file):
     port = output_file.split("/")[-1].split(".")[0]
+    with open(output_file, "r") as f:
+        data = loads(f.read())
 
-    output_table = "|Path|Status|\n" \
-                   "|:---:|:----:|\n"
+    output = f"""\n### Discovered Web Paths (Port {port})\n---\n"""
+    output += "| Path | Status | Size |\n"
+    output += "|:----:|:------:|:----:|\n"
 
-    for path, status, url in output:
-        output_table += f"|[{path}]({url})|{status}|\n"
+    for result in data["results"]:
+        path_name = result["input"]["FUZZ"]
+        url = result["url"]
+        status = result["status"]
+        length = result["length"]
+        if length == 0 and (status == 200 or status == 301) and result["words"] == 1 and result["lines"] == 1:
+            length = "Directory"
+
+        output += f"|[/{path_name}]({url})|{status}|{length}|\n"
 
     with open("README.md", "a") as f:
-        f.write(f"\n### Discovered Web Paths (Port {port})\n---\n")
-        f.write(output_table)
+        f.write(output)
