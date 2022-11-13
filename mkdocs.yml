@@ -1,0 +1,6 @@
+site_name: StartCTF
+
+plugins:
+  - search
+  - autorefs
+  - mkdocstrings

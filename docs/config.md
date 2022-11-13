@@ -13,3 +13,5 @@
 **emojis**: (*bool*) If true, emojis will be displayed in the output (default: true)
 
 **include_field_templates**: (*bool*) If true, short examples of each field will be displayed in the README.md (default: true)
+
+::: startctfutil.tools
