@@ -5,7 +5,9 @@ from startctfutil.args import parse_args, get_arg, set_arg
 from startctfutil.config import init_config
 from startctfutil.files import create_directory_template, create_readme_template, parse_nmap_output, parse_ffuf_output
 from startctfutil.io import info, success, warn
-from startctfutil.tools import run_nmap_scan, auto_scan
+# from startctfutil.tools import run_nmap_scan, auto_scan
+from startctfutil.readme import README, ReadmeSection, HeadingLevel
+from startctfutil.tools.nmap import Nmap
 
 
 def main():
@@ -25,8 +27,10 @@ def main():
     # Create the directory template
     create_directory_template(get_arg("name"))
 
+    README.add_section(ReadmeSection(get_arg("name"), HeadingLevel.H1))
+
     # Create the README template
-    create_readme_template(get_arg("name"), get_arg("ip"))
+    # create_readme_template(get_arg("name"), get_arg("ip"))
 
     if not get_arg("silent_tools"):
         info("Note: Spawned xterm windows may be stacked on top of each other, move them around to see them all")
@@ -37,9 +41,11 @@ def main():
         warn("Auto scan requires a nmap scan, ignoring auto scan...")
         set_arg("auto_scan", False)
 
+    nmap = None
     # If we have any of the operation arguments, run the tools
     if get_arg("nmap_scan"):
-        nmap_thread = run_nmap_scan()
+        nmap = Nmap()
+        nmap_thread = nmap.run()
 
     # Wait for the threads to finish
     if nmap_thread:
@@ -49,25 +55,26 @@ def main():
 
         # Parse the nmap output
         if get_arg("nmap_all"):
-            parse_nmap_output("logs/nmap/xml/all_ports.xml")
+            nmap.parse_output("logs/nmap/xml/all_ports.xml")
         else:
-            parse_nmap_output("logs/nmap/xml/initial.xml")
+            nmap.parse_output("logs/nmap/xml/initial.xml")
 
-        if get_arg("auto_scan"):
-            threads = auto_scan()
-            for port, data in threads.items():
-                info(f"Waiting for {data['tool']} on port {port} to finish...")
-                thread = data.get("thread")
-                if thread:
-                    thread.join()
-                    success(f"{data['tool']} on port {port} finished")
+        # if get_arg("auto_scan"):
+        #     threads = auto_scan()
+        #     for port, data in threads.items():
+        #         info(f"Waiting for {data['tool']} on port {port} to finish...")
+        #         thread = data.get("thread")
+        #         if thread:
+        #             thread.join()
+        #             success(f"{data['tool']} on port {port} finished")
+        #
+        #     if len(threads) > 0:
+        #         # TODO: Do this better
+        #         for file in os.listdir("logs/ffuf"):
+        #             if file.endswith(".json"):
+        #                 parse_ffuf_output(f"logs/ffuf/{file}")
 
-            if len(threads) > 0:
-                # TODO: Do this better
-                for file in os.listdir("logs/ffuf"):
-                    if file.endswith(".json"):
-                        parse_ffuf_output(f"logs/ffuf/{file}")
-
+    README.write()
 
     success("All done, get to pwning!")
 

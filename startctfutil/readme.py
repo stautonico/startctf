@@ -1,5 +1,9 @@
 from typing import Dict
 from enum import Enum
+from datetime import datetime
+
+from startctfutil.config import read_config_key
+from startctfutil import is_true
 
 
 class HeadingLevel(Enum):
@@ -18,13 +22,16 @@ class ReadmeSection:
         self.heading_level: HeadingLevel = heading_level
         self.content: str = ""
 
+    def add_content(self, content: str):
+        # TODO: Add docstring
+        self.content += content
+
     def render(self) -> str:
         # TODO: Add docstring
         # noinspection PyTypeChecker
         output = f"{'#' * self.heading_level.value} {self.title}\n"
         output += self.content
-        # noinspection PyTypeChecker
-        return f"{'#' * self.heading_level.value} {self.title}"
+        return output
 
 
 class Readme:
@@ -37,6 +44,11 @@ class Readme:
         # TODO: Add docstring
         self.sections[section.title] = section
 
+    def remove_section(self, title: str) -> None:
+        # TODO: Docstring
+        if title in self.sections:
+            del self.sections[title]
+
     def render(self) -> str:
         # TODO: Add docstring
         output = ""
@@ -46,5 +58,19 @@ class Readme:
 
     def write(self) -> None:
         # TODO: Add docstring
+        author_name = read_config_key("meta", "author")
+
+        if is_true(read_config_key("meta", "use_day_month_year", "false")):
+            date = datetime.now().strftime("%d/%m/%Y")
+        else:
+            date = datetime.now().strftime("%m/%d/%Y")
+
+        output = f"""> {author_name} - {date}\n\n"""
+        output += self.render()
+
         with open(self.path, "w") as f:
-            f.write(self.render())
+            f.write(output)
+
+
+# Global README object
+README = Readme("README.md")

@@ -19,10 +19,9 @@ class Tool:
     Each tool should implement the `run()` and `parse_output()` methods.
     """
 
-    def __init__(self, name: str, description: str, parser: argparse.ArgumentParser):
+    def __init__(self, name: str, description: str):
         self.name: str = name
         self.description: str = description
-        self.parser: argparse.ArgumentParser = parser
 
         self.tool_path = self.check_tool_path()
 

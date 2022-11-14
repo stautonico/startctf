@@ -13,14 +13,14 @@ arg_parser.add_argument("--ip", help="The ip address of the target server", requ
 # Operation arguments
 arg_parser.add_argument("-nS", "--nmap-scan", action="store_true", help="Run a simple nmap scan on the given ip")
 
-arg_parser.add_argument("-nSA", "--nmap-all", action="store_true",
-                        help="Run a full nmap scan on the given ip (all ports, slow)")
+# arg_parser.add_argument("-nSA", "--nmap-all", action="store_true",
+#                         help="Run a full nmap scan on the given ip (all ports, slow)")
 
-arg_parser.add_argument("-Pn", "--nmap-Pn", action="store_true",
-                        help="Run a nmap scan with the -Pn flag (skip host discovery)")
+# arg_parser.add_argument("-Pn", "--nmap-Pn", action="store_true",
+#                         help="Run a nmap scan with the -Pn flag (skip host discovery)")
 
-arg_parser.add_argument("-nSV", "--no-sV", action="store_true",
-                        help="Don't run nmap with the -sV flag (don't detect service versions)")
+# arg_parser.add_argument("-nSV", "--no-sV", action="store_true",
+#                         help="Don't run nmap with the -sV flag (don't detect service versions)")
 
 # TODO: Add more tools
 arg_parser.add_argument("-as", "--auto-scan", action="store_true",
