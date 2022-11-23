@@ -1,22 +1,20 @@
 from threading import Thread
-import argparse
 from xml.dom import minidom
 
 from startctfutil.tools import Tool, run
 from startctfutil.args import get_arg, arg_parser
 from startctfutil.io import info, warn
 from startctfutil.readme import README, ReadmeSection, HeadingLevel
-from startctfutil.table import Table
-
-print("Importing nmap.py")
+from startctfutil.markdown.table import Table
 
 # TODO: Find a better way to do this
 group = arg_parser.add_argument_group("nmap")
 group.add_argument("-nSA", "--nmap-all", action="store_true",
                    help="Run a full nmap scan on the given ip (all ports, slow)")
-group.add_argument("--nmap_Pn", action="store_true", help="Don't ping the target")
+group.add_argument("--nmap-Pn", action="store_true", help="Don't ping the target")
 group.add_argument("-nSV", "--no-sV", action="store_true",
                         help="Don't run nmap with the -sV flag (don't detect service versions)")
+group.add_argument("--exclude-ports", "-nmap-ep", type=str, help="Ports to exclude from the scan", default="")
 group.add_argument("--nmap-args", type=str, help="Extra arguments to pass to nmap", default="")
 
 
@@ -35,6 +33,9 @@ class Nmap(Tool):
 
             if not get_arg("no_sV"):
                 command += " -sV"
+
+            if not get_arg("exclude_ports") == "":
+                command += f" --exclude-ports {get_arg('exclude_ports')}"
 
             if get_arg("nmap_args"):
                 command += f" {get_arg('nmap_args')}"

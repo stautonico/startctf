@@ -1,14 +1,10 @@
 import os
 import subprocess
 from threading import Thread
-import argparse
-from typing import List
 
 from startctfutil.args import get_arg
-from startctfutil.io import info, warn
+from startctfutil.io import warn
 from startctfutil.config import read_config_key
-from startctfutil.files import parse_nmap_output_to_object
-from startctfutil.shared import STATE
 
 
 class Tool:

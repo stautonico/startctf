@@ -1,7 +1,7 @@
 import os
 from configparser import ConfigParser
 
-from startctfutil import HOME_DIR, CONFIG_DEFAULT_VALUES
+from startctfutil import HOME_DIR, CONFIG_DEFAULT_VALUES, is_true, is_false
 
 # TODO: Add cli arg of location to config
 
@@ -13,9 +13,16 @@ CONFIG_PATH = os.getenv("STARTCTF_CONFIG_PATH") or os.path.join(HOME_DIR, ".conf
 
 def read_config_key(section, key, default=None, ):
     try:
-        return CONFIG.get(section, key)
+        result = CONFIG.get(section, key)
     except Exception:
-        return CONFIG_DEFAULT_VALUES.get(section, {}).get(key, default)
+        result = CONFIG_DEFAULT_VALUES.get(section, {}).get(key, default)
+
+    if is_true(result):
+        return True
+    elif is_false(result):
+        return False
+    else:
+        return result
 
 
 def init_config():

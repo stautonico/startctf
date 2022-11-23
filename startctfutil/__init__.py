@@ -36,6 +36,8 @@ CONFIG_DEFAULT_VALUES = {
     "output": {
         "emojis": "true",
         "include_field_templates": "true",
+        "show_content_type": "true",
+        "show_size": "false"
     }
 }
 

@@ -8,6 +8,7 @@ from startctfutil.io import info, success, warn
 # from startctfutil.tools import run_nmap_scan, auto_scan
 from startctfutil.readme import README, ReadmeSection, HeadingLevel
 from startctfutil.tools.nmap import Nmap
+from startctfutil.tools.ffuf import Ffuf
 
 
 def main():
@@ -58,6 +59,34 @@ def main():
             nmap.parse_output("logs/nmap/xml/all_ports.xml")
         else:
             nmap.parse_output("logs/nmap/xml/initial.xml")
+
+        if get_arg("auto_scan"):
+            # TODO: Find a way to get this result without having to re-parse the nmap output
+            if get_arg("nmap_all"):
+                nmap_output = "logs/nmap/xml/all_ports.xml"
+            else:
+                nmap_output = "logs/nmap/xml/initial.xml"
+
+            result = nmap.parse_nmap_output_to_object(nmap_output)
+            threads = {}
+
+            for port, service in result.items():
+                # TODO: Check this is a more thorough and reliable way
+                if service["status"] == "open":
+                    if "http" in service["service"]:
+                        ffuf = Ffuf(port)
+                        threads[port] = {
+                            "tool": ffuf,
+                            "thread": ffuf.run()
+                        }
+
+            if len(threads) > 0:
+                for port, data in threads.items():
+                    info(f"Waiting for ffuf on port {port} to finish...")
+                    data["thread"].join()
+                    success(f"Ffuf on port {port} finished")
+
+                    data["tool"].parse_output(f"logs/ffuf/{port}.json")
 
         # if get_arg("auto_scan"):
         #     threads = auto_scan()

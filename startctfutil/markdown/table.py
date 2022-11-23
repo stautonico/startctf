@@ -1,5 +1,7 @@
 from typing import List
 
+from startctfutil.io import warn
+
 
 class Table:
     """
@@ -20,7 +22,18 @@ class Table:
         if len(row) != len(self.headers):
             raise ValueError("The length of the row must be equal to the number of headers.")
 
-        self.rows.append(row)
+        clean_row = []
+
+        for cell in row:
+            try:
+                cell = str(cell)
+                cell = cell.replace("|", "\\|")
+                clean_row.append(cell)
+            except Exception:
+                warn(f"Error while trying to clean cell (content: \"{cell}\").")
+                clean_row.append("ERROR")
+
+        self.rows.append(clean_row)
 
     def render(self) -> str:
         """

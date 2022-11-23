@@ -35,26 +35,26 @@ def create_directory_template(name):
 def create_readme_template(ctf_name, ip=None):
     author_name = read_config_key("meta", "author")
 
-    if is_true(read_config_key("meta", "use_day_month_year", "false")):
+    if read_config_key("meta", "use_day_month_year", "false"):
         date = datetime.now().strftime("%d/%m/%Y")
     else:
         date = datetime.now().strftime("%m/%d/%Y")
 
     # TODO: Make this not so fucking ugly
     readme = f"""> {author_name} - {date}\n# {ctf_name}\n---\n"""
-    if is_true(read_config_key("output", "include_field_templates")):
+    if read_config_key("output", "include_field_templates"):
         readme += "A short description of the CTF goes here\n\n"
 
     readme += """\n### Files\n---\n\n"""
 
-    if is_true(read_config_key("output", "include_field_templates")):
+    if read_config_key("output", "include_field_templates"):
         # Remove the last newline
         readme = readme[:-1]
         readme += """[remote]/home/foo/bar.txt - Some file that contains text
 [local, in exfiltrated_docs]baz.txt - Some file that contains text\n\n\n"""
     readme += """### Creds\n---\n"""
 
-    if is_true(read_config_key("output", "include_field_templates")):
+    if read_config_key("output", "include_field_templates"):
         readme += """username:password - Some credentials for ssh @someip\n\n"""
 
     if ip:

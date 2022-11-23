@@ -60,7 +60,7 @@ class Readme:
         # TODO: Add docstring
         author_name = read_config_key("meta", "author")
 
-        if is_true(read_config_key("meta", "use_day_month_year", "false")):
+        if read_config_key("meta", "use_day_month_year", "false"):
             date = datetime.now().strftime("%d/%m/%Y")
         else:
             date = datetime.now().strftime("%m/%d/%Y")
