@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 
+from startctfutil import __version__
 from startctfutil.args import parse_args, get_arg, set_arg
 from startctfutil.config import init_config
 from startctfutil.files import create_directory_template, create_readme_template, parse_nmap_output, parse_ffuf_output
@@ -14,16 +15,23 @@ from startctfutil.tools.ffuf import Ffuf
 def main():
     parse_args()
     init_config()
+    # We have to import this after the config is initialized (because otherwise it'll be None)
+    from startctfutil.config import CONFIG_VERSION
+
+    if CONFIG_VERSION != __version__:
+        warn(
+            f"Config version is {CONFIG_VERSION}, but the current version is {__version__}. Please run 'startctf --update-config' to update the config.")
+
+    # TODO: Implement preferred tools option in config
     # TODO: Add ability to use rustscan instead of nmap
-    # TODO: Move tools to their own file (or tools/nmap.py, etc)
-    # TODO: Move most of everything else to their own files, this file should only be a main function
     # TODO: REWRITE THE INSTALLATION SCRIPT
     # TODO: REWRITE THE UNINSTALLATION SCRIPT
-    # TODO: Add a version to the config file so if future versions change the config format,
-    #      the user can be notified and the config file can be updated
     # TODO: Use type hints everywhere
     # TODO: Add option to overwrite existing files
     # TODO: Add option to disable tables in generated READMEs
+    # TODO: Add --init-config option to create a config file with default values (optional --path argument)
+    # TODO: Use translations file for all user-facing strings (i18n)
+    # TODO: Add ability to download common tools from where ever they come from and put them in the tools directory
 
     # Create the directory template
     create_directory_template(get_arg("name"))

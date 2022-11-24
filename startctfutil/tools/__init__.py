@@ -72,7 +72,7 @@ def run_command_in_background(command: str) -> None:
     Args:
         command: The command to run
     """
-    subprocess.call(command, shell=True, stdout=subprocess.PIPE)
+    subprocess.call(command, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
 
 
 def run(command: str, title: str) -> Thread:
