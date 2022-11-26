@@ -22,7 +22,7 @@ group = arg_parser.add_argument_group("ffuf")
 group.add_argument("--ffuf-args", type=str, help="Extra arguments to pass to ffuf", default="")
 
 
-class Ffuf(Tool):
+class ffuf(Tool):
     # TODO: Docstring
     def __init__(self, port):
         super().__init__("ffuf", "Fast web fuzzer written in Go")
@@ -30,7 +30,7 @@ class Ffuf(Tool):
 
     def run(self) -> Thread:
         # TODO: Docstring
-        wordlist = read_config_key("tools", "directory_list")
+        wordlist = read_config_key("tools", "webscanner_wordlist")
         if not os.path.exists(wordlist):
             # This is so that only a single warning is printed (instead of one for each web service)
             if STATE.get("failed_fuff"):
@@ -39,6 +39,8 @@ class Ffuf(Tool):
                 STATE["failed_fuff"] = True
             warn(f"Wordlist not found at {wordlist}, skipping ffuf.")
             return Thread(target=lambda: None)
+
+        self.make_log_dir()
 
         command = f"{self.tool_path} -u http://{get_arg('ip')}:{self.port}/FUZZ -w {wordlist} -o logs/ffuf/{self.port}.json -of json {get_arg('ffuf_args')}"
         return run(command, f"fuff - {get_arg('ip')}:{self.port}")

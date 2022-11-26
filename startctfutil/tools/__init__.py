@@ -1,10 +1,94 @@
 import os
 import subprocess
 from threading import Thread
+from typing import Literal, Optional
+import importlib
 
 from startctfutil.args import get_arg
 from startctfutil.io import warn
 from startctfutil.config import read_config_key
+from startctfutil.shared import STATE
+
+SUPPORTED_TOOLS = {
+    "network_scanner": ["nmap"],  # TODO: rustscan
+    "web_fuzzer": ["ffuf", "gobuster"]
+}
+
+
+def get_preferred_tool(category: Literal["network_scanner", "web_fuzzer"]) -> Optional[str]:
+    """
+    Get the preferred tool for a category (from the config file)
+
+    Args:
+        category: The category to get the preferred tool for
+
+    Returns:
+        tool: The name preferred tool
+    """
+    if category not in SUPPORTED_TOOLS:
+        raise ValueError(f"Invalid category '{category}'")
+
+    find_alternative = False
+
+    preferred_tool = read_config_key("tools", f"preferred_{category}")
+    if preferred_tool not in SUPPORTED_TOOLS[category]:
+        warn(f"Invalid preferred tool '{preferred_tool}' for category '{category}' (not supported)")
+        find_alternative = True
+    else:
+        # Confirm that the preferred tool is installed
+        tool_path = read_config_key("tools", preferred_tool)
+        if not os.path.exists(tool_path):
+            warn(
+                f"{preferred_tool.title()} not found at '{tool_path}', please install it or set the path in the config.")
+            find_alternative = True
+
+    # TODO: Find a way to do this without checking twice
+    if find_alternative:
+        # Try to find an alternative tool
+        other_tools = SUPPORTED_TOOLS[category].copy()
+        if preferred_tool in other_tools:  # If it's not, that means the user tried to set an invalid tool (which is already handled)
+            other_tools.remove(preferred_tool)
+
+        for tool in other_tools:
+            warn(f"Trying {tool} instead...")
+            tool_path = read_config_key("tools", tool)
+            if os.path.exists(tool_path):
+                warn(f"Using {tool.title()} instead")
+                STATE["tools"][category] = tool
+                return tool
+
+        warn(f"Could not find any other tools for category '{category}'")
+        STATE["tools"][category] = "Not found"
+        return None
+    else:
+        STATE["tools"][category] = preferred_tool
+        return preferred_tool
+
+
+def try_import_preferred_tool(category: Literal["network_scanner", "web_fuzzer"]):
+    """
+    Try to import the preferred tool for a category.
+
+    Args:
+        category: The category to import the preferred tool for
+    """
+    # Try to see if the state already cached this
+    if category in STATE.get("tools", {}):
+        if STATE["tools"][category] == "Not found":
+            return None
+        else:
+            tool = STATE["tools"][category]
+    else:
+        tool = get_preferred_tool(category)
+        if tool is None:
+            return None
+
+    try:
+        tool_module = importlib.import_module(f"startctfutil.tools.{tool}")
+    except ModuleNotFoundError:
+        return None
+
+    return getattr(tool_module, tool)
 
 
 class Tool:
@@ -26,6 +110,13 @@ class Tool:
         Execute the tool (simply a stub, should be overridden by subclasses)
         """
         raise NotImplementedError(f"run() not implemented for {self.name}")
+
+    def make_log_dir(self) -> None:
+        """
+        Create a log directory to store the tools log files (if it doesn't already exist)
+        """
+        if not os.path.exists(f"logs/{self.name}"):
+            os.mkdir(f"logs/{self.name}")
 
     def parse_output(self, file: str) -> None:
         """

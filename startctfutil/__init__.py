@@ -32,6 +32,13 @@ CONFIG_DEFAULT_VALUES = {
     "tools": {
         "nmap": run_command_and_get_output("which nmap", strip=True) or None,
         "rustscan": run_command_and_get_output("which rustscan", strip=True) or None,
+        "gobuster": run_command_and_get_output("which gobuster", strip=True) or None,
+        "ffuf": run_command_and_get_output("which ffuf", strip=True) or None,
+
+        "preferred_network_scanner": "nmap",
+        "preferred_web_fuzzer": "ffuf",
+
+        "webscanner_wordlist": "/opt/SecLists/Discovery/Web-Content/common.txt"
     },
     "output": {
         "emojis": "true",

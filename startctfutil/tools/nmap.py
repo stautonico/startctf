@@ -1,3 +1,4 @@
+import os
 from threading import Thread
 from xml.dom import minidom
 
@@ -13,15 +14,21 @@ group.add_argument("-nSA", "--nmap-all", action="store_true",
                    help="Run a full nmap scan on the given ip (all ports, slow)")
 group.add_argument("--nmap-Pn", action="store_true", help="Don't ping the target")
 group.add_argument("-nSV", "--no-sV", action="store_true",
-                        help="Don't run nmap with the -sV flag (don't detect service versions)")
-group.add_argument("--exclude-ports", "-nmap-ep", type=str, help="Ports to exclude from the scan", default="")
+                   help="Don't run nmap with the -sV flag (don't detect service versions)")
+group.add_argument("-nmap-ep", "--nmap-exclude-ports", type=str, help="Ports to exclude from the scan", default="")
 group.add_argument("--nmap-args", type=str, help="Extra arguments to pass to nmap", default="")
 
 
-class Nmap(Tool):
+class nmap(Tool):
     # TODO: Docstring
     def __init__(self):
         super().__init__("nmap", "A tool for network discovery and security auditing")
+
+    def make_log_dir(self) -> None:
+        # TODO: Docstring
+        if not os.path.exists("logs/nmap"):
+            os.mkdir("logs/nmap")
+            os.mkdir("logs/nmap/xml")
 
     def run(self) -> Thread:
         # TODO: Docstring
@@ -47,6 +54,8 @@ class Nmap(Tool):
 
             # TODO: Change this message based on the verbosity level
             info(f"Running nmap scan on {get_arg('ip')}")
+
+            self.make_log_dir()
 
             return run(command, f"nmap - {get_arg('ip')}")
         else:

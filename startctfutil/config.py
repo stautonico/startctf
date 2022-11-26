@@ -32,7 +32,6 @@ def init_config():
     # Make sure the config exists
     if not os.path.exists(CONFIG_PATH):
         CONFIG.read_string("")
-        # print(CONFIG.sections())
         warn(f"Config file not found, using default values.")
     else:
         # Try to read the config header
