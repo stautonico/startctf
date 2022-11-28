@@ -156,6 +156,15 @@ def run_command_in_xterm(command: str, title: str) -> None:
     os.system(f"xterm -T \"{title}\" -e \"{command}\"")
 
 
+def run_command_no_xterm(command: str) -> None:
+    """
+    Run a command in the main terminal window
+    Args:
+        command: The command to run
+    """
+    os.system(command)
+
+
 def run_command_in_background(command: str) -> None:
     """
     Run a command in the background
@@ -182,6 +191,8 @@ def run(command: str, title: str) -> Thread:
     """
     if get_arg("silent") or get_arg("silent_tools"):
         thread = Thread(target=run_command_in_background, args=(command,))
+    elif get_arg("no_xterm"):
+        thread = Thread(target=run_command_no_xterm, args=(command,))
     else:
         thread = Thread(target=run_command_in_xterm, args=(command, title))
 

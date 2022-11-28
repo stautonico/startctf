@@ -21,6 +21,9 @@ def create_directory_template(name):
     os.mkdir(name)
     os.chdir(name)
 
+    # Create the startctf hidden directory that contains information/settings about the current CTF
+    os.mkdir(".startctf")
+
     # Make the directory for storing logs (from enum tools etc.)
     os.mkdir("logs")
 
@@ -28,4 +31,4 @@ def create_directory_template(name):
     os.mkdir("exfiltrated_docs")
 
     # Make directory for scripts/exploits/etc
-    os.mkdir("tools")
+    os.mkdir("scripts")

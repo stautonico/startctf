@@ -10,6 +10,7 @@ from startctfutil.files import create_directory_template
 from startctfutil.io import info, success, warn, error
 from startctfutil.readme import README, ReadmeSection, HeadingLevel
 from startctfutil.tools import get_preferred_tool, SUPPORTED_TOOLS, try_import_preferred_tool
+from startctfutil.scripts import SUPPORTED_SCRIPTS
 
 # Import all the tools here so their arguments are added to the parser
 for category in SUPPORTED_TOOLS:
@@ -49,13 +50,44 @@ def main():
                     success("Manpage installed successfully!")
                     exit(0)
 
+    if get_arg("list_scripts"):
+        info("Supported scripts:")
+        for script in SUPPORTED_SCRIPTS:
+            info(f"  {script}")
+        exit(0)
+
+    if get_arg("download_script"):
+        # Check if we're in a startctf directory
+        if not os.path.exists(".startctf"):
+            error("You must be in a startctf directory to download a script.")
+            exit(1)
+
+        to_download = get_arg("download_script").lower()
+        if to_download not in SUPPORTED_SCRIPTS:
+            error(f"Script '{to_download}' is not supported. Use --list-scripts to see a list of supported scripts.")
+            exit(1)
+        else:
+            info(f"Downloading script '{to_download}'...")
+            try:
+                script_module = importlib.import_module(f"startctfutil.scripts.{to_download}")
+                script = getattr(script_module, to_download)()
+                script.download()
+                script.compile()
+                success(f"Script '{to_download}' downloaded successfully!")
+                exit(0)
+            except ModuleNotFoundError:
+                error(f"Script '{to_download}' not found. Please open an issue on GitHub.")
+                exit(1)
+            except Exception as e:
+                error(f"Failed to download script '{to_download}'. Please open an issue on GitHub. (Error: {e})")
+
+
     # TODO: Add ability to use rustscan instead of nmap
     # TODO: Use type hints everywhere
-    # TODO: Add option to overwrite existing files
-    # TODO: Add option to disable tables in generated READMEs
     # TODO: Add --init-config option to create a config file with default values (optional --path argument)
-    # TODO: Use translations file for all user-facing strings (i18n)
     # TODO: Add ability to download common tools from where ever they come from and put them in the tools directory
+    # TODO: Use translations file for all user-facing strings (i18n)
+    # TODO: Include autocompletions for bash and zsh
 
     # Create the directory template
     create_directory_template(get_arg("name"))
@@ -136,7 +168,6 @@ def main():
     README.write()
 
     success("All done, get to pwning!")
-
 
 if __name__ == '__main__':
     main()

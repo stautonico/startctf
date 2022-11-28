@@ -41,7 +41,7 @@ class nmap(Tool):
             if not get_arg("no_sV"):
                 command += " -sV"
 
-            if not get_arg("exclude_ports") == "":
+            if get_arg("exclude_ports") not in ["", None]:
                 command += f" --exclude-ports {get_arg('exclude_ports')}"
 
             if get_arg("nmap_args"):

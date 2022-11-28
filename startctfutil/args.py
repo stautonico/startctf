@@ -23,9 +23,16 @@ arg_parser.add_argument("-nS", "--nmap-scan", action="store_true", help="Run a s
 arg_parser.add_argument("-f", "--force", action="store_true", help="Overwrite existing files (careful, destructive)",
                         default=False)
 
-# TODO: Add more tools
 arg_parser.add_argument("-as", "--auto-scan", action="store_true",
                         help="Try to detect which services are running on the target and run the appropriate tools (-nS or -nSA required)")
+
+arg_parser.add_argument("-ds", "--download-script", type=str,
+                        help="Download a supported 3rd party utility from the internet and add it to the \"scripts\" directory. Use --list-scripts to see a list of supported scripts.",
+                        required=False)
+
+arg_parser.add_argument("-ls", "--list-scripts", action="store_true",
+                        help="List all supported 3rd party scripts that can be downloaded with the --download-script argument",
+                        required=False)
 
 # Settings
 # TODO: Maybe add option to not popout new xterm windows
@@ -37,6 +44,9 @@ arg_parser.add_argument("-s", "--silent", action="store_true",
 
 arg_parser.add_argument("-st", "--silent-tools", action="store_true",
                         help="Only silence output from tools, but still show status messages")
+
+arg_parser.add_argument("-nx", "--no-xterm", action="store_true",
+                        help="Don't open new xterm windows for each tool (Output for all tools will be shown in the terminal)")
 
 arg_parser.add_argument("-nw", "--no-warnings", action="store_true",
                         help="Don't show any warnings from the script")
@@ -52,7 +62,7 @@ def parse_args():
 
     # If we don't have name, or install-manpage, we need to show the usage
     # We don't need to handle help or version because argparse does that for us
-    for arg in ["name", "install_manpage"]:
+    for arg in ["name", "install_manpage", "list_scripts", "download_script"]:
         if getattr(ARGS, arg) is not None and getattr(ARGS, arg) is not False:
             break
     else:
