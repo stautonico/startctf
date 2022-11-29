@@ -1,15 +1,11 @@
-from threading import Thread
 import os
-from json import load
+from threading import Thread
 
-from startctfutil.tools import Tool, run
+from startctfutil.arg_parser import get_arg, arg_parser
 from startctfutil.config import read_config_key
-from startctfutil.args import get_arg, arg_parser
 from startctfutil.io import warn
-from startctfutil.readme import README, ReadmeSection, HeadingLevel
-from startctfutil.markdown.table import Table
-from startctfutil.markdown import make_url
 from startctfutil.shared import STATE
+from startctfutil.tools import Tool, run
 
 # TODO: Find a better way to do this
 group = arg_parser.add_argument_group("gobuster")

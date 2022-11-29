@@ -2,11 +2,11 @@ import os
 from threading import Thread
 from xml.dom import minidom
 
-from startctfutil.tools import Tool, run
-from startctfutil.args import get_arg, arg_parser
+from startctfutil.arg_parser import get_arg, arg_parser
 from startctfutil.io import info, warn
-from startctfutil.readme import README, ReadmeSection, HeadingLevel
 from startctfutil.markdown.table import Table
+from startctfutil.readme import README, ReadmeSection, HeadingLevel
+from startctfutil.tools import Tool, run
 
 # TODO: Find a better way to do this
 group = arg_parser.add_argument_group("nmap")

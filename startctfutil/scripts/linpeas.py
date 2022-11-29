@@ -16,7 +16,7 @@ class linpeas(Script):
             repo_url="https://github.com/carlospolop/PEASS-ng",
         )
 
-    def download(self) -> bool:
+    def obtain(self) -> bool:
         try:
             content = download_file("https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh")
             if content is None:

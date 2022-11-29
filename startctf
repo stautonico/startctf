@@ -1,24 +1,27 @@
 #!/usr/bin/env python3
-import os
 import importlib
+import os
+
 import requests
 
 from startctfutil import __version__
-from startctfutil.args import parse_args, get_arg, set_arg
+from startctfutil.arg_parser import parse_args, get_arg, set_arg
+from startctfutil.commands import load_commands
 from startctfutil.config import init_config
 from startctfutil.files import create_directory_template
 from startctfutil.io import info, success, warn, error
 from startctfutil.readme import README, ReadmeSection, HeadingLevel
-from startctfutil.tools import get_preferred_tool, SUPPORTED_TOOLS, try_import_preferred_tool
 from startctfutil.scripts import SUPPORTED_SCRIPTS
+from startctfutil.tools import get_preferred_tool, try_import_preferred_tool
+
 
 # Import all the tools here so their arguments are added to the parser
-for category in SUPPORTED_TOOLS:
-    for tool in SUPPORTED_TOOLS[category]:
-        importlib.import_module(f"startctfutil.tools.{tool}")
-
+# for category in SUPPORTED_TOOLS:
+#     for tool in SUPPORTED_TOOLS[category]:
+#         importlib.import_module(f"startctfutil.tools.{tool}")
 
 def main():
+    load_commands()
     parse_args()
     init_config()
     # We have to import this after the config is initialized (because otherwise it'll be None)
@@ -71,8 +74,7 @@ def main():
             try:
                 script_module = importlib.import_module(f"startctfutil.scripts.{to_download}")
                 script = getattr(script_module, to_download)()
-                script.download()
-                script.compile()
+                script.obtain()
                 success(f"Script '{to_download}' downloaded successfully!")
                 exit(0)
             except ModuleNotFoundError:
@@ -80,7 +82,6 @@ def main():
                 exit(1)
             except Exception as e:
                 error(f"Failed to download script '{to_download}'. Please open an issue on GitHub. (Error: {e})")
-
 
     # TODO: Add ability to use rustscan instead of nmap
     # TODO: Use type hints everywhere
@@ -168,6 +169,7 @@ def main():
     README.write()
 
     success("All done, get to pwning!")
+
 
 if __name__ == '__main__':
     main()

@@ -1,7 +1,6 @@
+from startctfutil.arg_parser import get_arg
 from startctfutil.color import Colors, colorize
-from startctfutil import is_true
 from startctfutil.config import read_config_key
-from startctfutil.args import get_arg
 
 
 # TODO: Add option in config to output message in white text

@@ -40,11 +40,16 @@ CONFIG_DEFAULT_VALUES = {
 
         "webscanner_wordlist": "/opt/SecLists/Discovery/Web-Content/common.txt"
     },
+    "network": {
+        "default_interface": run_command_and_get_output("ip route | grep default | cut -d ' ' -f 5",
+                                                        strip=True) or None,
+    },
     "output": {
         "emojis": "true",
         "include_field_templates": "true",
         "show_content_type": "true",
-        "show_size": "false"
+        "show_size": "false",
+        "no_warnings": "false"
     }
 }
 

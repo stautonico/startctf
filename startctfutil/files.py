@@ -1,8 +1,8 @@
 import os
 import shutil
 
+from startctfutil.arg_parser import get_arg
 from startctfutil.io import error
-from startctfutil.args import get_arg
 
 
 def create_directory_template(name):

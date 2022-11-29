@@ -1,7 +1,9 @@
 from typing import Optional
 import requests
 
-SUPPORTED_SCRIPTS = ["linpeas", "winpeas"] # TODO: Support winpeas
+SUPPORTED_SCRIPTS = ["linpeas", "winpeas"] # TODO: Find a way to auto-generate this list
+
+# TODO: Don't hardcode the scripts directory, use the path module?
 
 def download_file(url: str) -> bytes:
     """
@@ -33,18 +35,10 @@ class Script:
         self.description: str = description
         self.repo_url: Optional[str] = repo_url
 
-    def download(self) -> bool:
+    def obtain(self) -> bool:
         """
-        Download the script (simply a stub, should be overridden by subclasses)
+        Generate or download the script (simply a stub, should be overridden by subclasses)
         Returns:
-            downloaded: `True` if the script was downloaded, `False` otherwise
+            success: `True` if the script was obtained, `False` otherwise
         """
         raise NotImplementedError(f"download() not implemented for {self.name}")
-
-    def compile(self) -> bool:
-        """
-        If the script needs to be compiled, compile it (simply a stub, should be overridden by subclasses)
-        Returns:
-            compiled: `True` if the script was compiled, `False` otherwise
-        """
-        return False
