@@ -1,9 +1,10 @@
 from typing import Optional
+
 import requests
 
-SUPPORTED_SCRIPTS = ["linpeas", "winpeas"] # TODO: Find a way to auto-generate this list
-
 # TODO: Don't hardcode the scripts directory, use the path module?
+SUPPORTED_SCRIPTS = ["linpeas", "winpeas", "reverse_shell"]
+
 
 def download_file(url: str) -> bytes:
     """
@@ -30,10 +31,11 @@ class Script:
     Each script should implement the `download()` method and may implement the `compile()` method.
     """
 
-    def __init__(self, name: str, description: str, repo_url: Optional[str] = None):
+    def __init__(self, name: str, description: str, repo_url: Optional[str] = None, prints_messages: bool = False):
         self.name: str = name
         self.description: str = description
         self.repo_url: Optional[str] = repo_url
+        self.prints_messages = prints_messages
 
     def obtain(self) -> bool:
         """

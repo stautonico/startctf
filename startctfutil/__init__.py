@@ -38,7 +38,9 @@ CONFIG_DEFAULT_VALUES = {
         "preferred_network_scanner": "nmap",
         "preferred_web_fuzzer": "ffuf",
 
-        "webscanner_wordlist": "/opt/SecLists/Discovery/Web-Content/common.txt"
+        "webscanner_wordlist": "/opt/SecLists/Discovery/Web-Content/common.txt",
+
+        "confirm_duplicate_scans": "true"
     },
     "network": {
         "default_interface": run_command_and_get_output("ip route | grep default | cut -d ' ' -f 5",
