@@ -118,7 +118,7 @@ class Tool:
         if not os.path.exists(f"logs/{self.name}"):
             os.mkdir(f"logs/{self.name}")
 
-    def parse_output(self, file: str) -> None:
+    def parse_output(self) -> None:
         """
         Parse the output of the tool and add it to the README.md (simply a stub, should be overridden by subclasses)
         """

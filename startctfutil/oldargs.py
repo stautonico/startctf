@@ -12,19 +12,19 @@ class ArgParser(argparse.ArgumentParser):
 
 arg_parser = ArgParser(description="Create a CTF template and automate some common tasks")
 
-arg_parser.add_argument("name", type=str, help="The name of the ctf (also the name of the created dir)",
-                        nargs="?")
+# arg_parser.add_argument("name", type=str, help="The name of the ctf (also the name of the created dir)",
+#                         nargs="?")
 
-arg_parser.add_argument("--ip", help="The ip address of the target server", required=False)
+# arg_parser.add_argument("--ip", help="The ip address of the target server", required=False)
 
 # Operation arguments
-arg_parser.add_argument("-nS", "--nmap-scan", action="store_true", help="Run a simple nmap scan on the given ip")
-
-arg_parser.add_argument("-f", "--force", action="store_true", help="Overwrite existing files (careful, destructive)",
-                        default=False)
-
-arg_parser.add_argument("-as", "--auto-scan", action="store_true",
-                        help="Try to detect which services are running on the target and run the appropriate tools (-nS or -nSA required)")
+# arg_parser.add_argument("-nS", "--nmap-scan", action="store_true", help="Run a simple nmap scan on the given ip")
+#
+# arg_parser.add_argument("-f", "--force", action="store_true", help="Overwrite existing files (careful, destructive)",
+#                         default=False)
+#
+# arg_parser.add_argument("-as", "--auto-scan", action="store_true",
+#                         help="Try to detect which services are running on the target and run the appropriate tools (-nS or -nSA required)")
 
 arg_parser.add_argument("-ds", "--download-script", type=str,
                         help="Download a supported 3rd party utility from the internet and add it to the \"scripts\" directory. Use --list-scripts to see a list of supported scripts.",
@@ -39,17 +39,17 @@ arg_parser.add_argument("-ls", "--list-scripts", action="store_true",
 arg_parser.add_argument("--install-manpage", action="store_true",
                         help="Downloads and installs the manpage (requires sudo/root)")
 
-arg_parser.add_argument("-s", "--silent", action="store_true",
-                        help="Don't show any output from any of the tools or the script itself")
+# arg_parser.add_argument("-s", "--silent", action="store_true",
+#                         help="Don't show any output from any of the tools or the script itself")
 
-arg_parser.add_argument("-st", "--silent-tools", action="store_true",
-                        help="Only silence output from tools, but still show status messages")
+# arg_parser.add_argument("-st", "--silent-tools", action="store_true",
+#                         help="Only silence output from tools, but still show status messages")
 
-arg_parser.add_argument("-nx", "--no-xterm", action="store_true",
-                        help="Don't open new xterm windows for each tool (Output for all tools will be shown in the terminal)")
+# arg_parser.add_argument("-nx", "--no-xterm", action="store_true",
+#                         help="Don't open new xterm windows for each tool (Output for all tools will be shown in the terminal)")
 
-arg_parser.add_argument("-nw", "--no-warnings", action="store_true",
-                        help="Don't show any warnings from the script")
+# arg_parser.add_argument("-nw", "--no-warnings", action="store_true",
+#                         help="Don't show any warnings from the script")
 
 arg_parser.add_argument("-V", "--version",
                         action="version",

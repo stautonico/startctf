@@ -2,21 +2,23 @@ import os
 from threading import Thread
 from xml.dom import minidom
 
-from startctfutil.arg_parser import get_arg, arg_parser
+from startctfutil.arg_parser import get_arg
 from startctfutil.io import info, warn
 from startctfutil.markdown.table import Table
 from startctfutil.readme import README, ReadmeSection, HeadingLevel
+from startctfutil.shared import STATE
 from startctfutil.tools import Tool, run
 
+
 # TODO: Find a better way to do this
-group = arg_parser.add_argument_group("nmap")
-group.add_argument("-nSA", "--nmap-all", action="store_true",
-                   help="Run a full nmap scan on the given ip (all ports, slow)")
-group.add_argument("--nmap-Pn", action="store_true", help="Don't ping the target")
-group.add_argument("-nSV", "--no-sV", action="store_true",
-                   help="Don't run nmap with the -sV flag (don't detect service versions)")
-group.add_argument("-nmap-ep", "--nmap-exclude-ports", type=str, help="Ports to exclude from the scan", default="")
-group.add_argument("--nmap-args", type=str, help="Extra arguments to pass to nmap", default="")
+# group = arg_parser.add_argument_group("nmap")
+# # group.add_argument("-nSA", "--nmap-all", action="store_true",
+# #                    help="Run a full nmap scan on the given ip (all ports, slow)")
+# group.add_argument("--nmap-Pn", action="store_true", help="Don't ping the target")
+# group.add_argument("-nSV", "--no-sV", action="store_true",
+#                    help="Don't run nmap with the -sV flag (don't detect service versions)")
+# group.add_argument("-nmap-ep", "--nmap-exclude-ports", type=str, help="Ports to exclude from the scan", default="")
+# group.add_argument("--nmap-args", type=str, help="Extra arguments to pass to nmap", default="")
 
 
 class nmap(Tool):
@@ -89,9 +91,18 @@ class nmap(Tool):
 
         return output
 
-    def parse_output(self, file: str) -> None:
+    def parse_output(self) -> None:
         # TODO: Docstring
+        # Decide which file to parse
+        if get_arg("network_scan_all"):
+            file = "logs/nmap/xml/all_ports.xml"
+        else:
+            file = "logs/nmap/xml/initial.xml"
         result = self.parse_nmap_output_to_object(file)
+        # TODO: Make this a standardized function (use a function to standardize the data going into state)
+        STATE["tools"]["network_scanner"] = {
+            "parsed_output": result
+        }
 
         table = Table(["Port", "Status", "Service"])
         for port, data in result.items():

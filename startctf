@@ -1,18 +1,13 @@
 #!/usr/bin/env python3
-import importlib
 import os
 
 import requests
 
 from startctfutil import __version__
-from startctfutil.arg_parser import parse_args, get_arg, set_arg
+from startctfutil.arg_parser import parse_args, get_arg, run
 from startctfutil.commands import load_commands
 from startctfutil.config import init_config
-from startctfutil.files import create_directory_template
 from startctfutil.io import info, success, warn, error
-from startctfutil.readme import README, ReadmeSection, HeadingLevel
-from startctfutil.scripts import SUPPORTED_SCRIPTS
-from startctfutil.tools import get_preferred_tool, try_import_preferred_tool
 
 
 # Import all the tools here so their arguments are added to the parser
@@ -53,93 +48,15 @@ def main():
                     success("Manpage installed successfully!")
                     exit(0)
 
+    run()  # Run the command passed to argparse
+
+    # TODO: Figure out how to add arguments from a tool into the `start/new` script
     # TODO: Add ability to use rustscan instead of nmap
     # TODO: Use type hints everywhere
     # TODO: Add --init-config option to create a config file with default values (optional --path argument)
-    # TODO: Add ability to download common tools from where ever they come from and put them in the tools directory
     # TODO: Use translations file for all user-facing strings (i18n)
     # TODO: Include autocompletions for bash and zsh
     # TODO: Write github actions to automatically build and upload to pypi
-
-    # Create the directory template
-    create_directory_template(get_arg("name"))
-
-    README.add_section(ReadmeSection(get_arg("name"), HeadingLevel.H1))
-
-    # Create the README template
-    # create_readme_template(get_arg("name"), get_arg("ip"))
-
-    if not get_arg("silent_tools"):
-        info("Note: Spawned xterm windows may be stacked on top of each other, move them around to see them all")
-
-    network_scanner_thread = None
-    network_scanner = None
-    preferred_tool = get_preferred_tool("network_scanner")
-
-    if (not get_arg("nmap_scan") and not get_arg("nmap_all")) and get_arg("auto_scan"):
-        warn("Auto scan requires a network scan, ignoring auto scan...")
-        set_arg("auto_scan", False)
-
-    # If we have any of the operation arguments, run the tools
-    if get_arg("nmap_scan"):
-        if preferred_tool is None:
-            warn("No network scanner found, skipping network scan")
-        else:
-            network_scanner = try_import_preferred_tool("network_scanner")
-            if network_scanner is None:
-                warn("No network scanner found, skipping network scan")
-            else:
-                network_scanner = network_scanner()
-                network_scanner_thread = network_scanner.run()
-
-    # Wait for the threads to finish
-    if network_scanner_thread:
-        info(f"Waiting for {preferred_tool} to finish...")
-        network_scanner_thread.join()
-        success("Nmap finished")
-
-        # Parse the nmap output
-        if get_arg("nmap_all"):
-            network_scanner.parse_output("logs/nmap/xml/all_ports.xml")
-        else:
-            network_scanner.parse_output("logs/nmap/xml/initial.xml")
-
-        # TODO: Rebuild this to support multiple tools (this only supports nmap)
-        if get_arg("auto_scan"):
-            # TODO: Find a way to get this result without having to re-parse the nmap output
-            if get_arg("nmap_all"):
-                nmap_output = "logs/nmap/xml/all_ports.xml"
-            else:
-                nmap_output = "logs/nmap/xml/initial.xml"
-
-            result = network_scanner.parse_nmap_output_to_object(nmap_output)
-            threads = {}
-
-            for port, service in result.items():
-                # TODO: Check this is a more thorough and reliable way
-                if service["status"] == "open":
-                    if "http" in service["service"]:
-                        tool = try_import_preferred_tool("web_fuzzer")
-                        if tool is None:
-                            warn("No web fuzzer found, skipping web fuzzing")
-                        else:
-                            tool = tool(port)
-                            threads[port] = {
-                                "tool": tool,
-                                "thread": tool.run()
-                            }
-
-            if len(threads) > 0:
-                for port, data in threads.items():
-                    info(f"Waiting for {data['tool'].name} on port {port} to finish...")
-                    data["thread"].join()
-                    success(f"{data['tool'].name} on port {port} finished")
-
-                    data["tool"].parse_output(f"logs/{data['tool'].name}/{port}.json")
-
-    README.write()
-
-    success("All done, get to pwning!")
 
 
 if __name__ == '__main__':

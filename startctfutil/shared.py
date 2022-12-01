@@ -1,3 +1,3 @@
 STATE = {
-    "tools": {}
+    "tools": {},
 }

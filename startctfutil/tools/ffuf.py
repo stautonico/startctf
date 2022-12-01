@@ -2,7 +2,7 @@ import os
 from json import load
 from threading import Thread
 
-from startctfutil.arg_parser import get_arg, arg_parser
+from startctfutil.arg_parser import get_arg
 from startctfutil.config import read_config_key
 from startctfutil.io import warn
 from startctfutil.markdown import make_url
@@ -11,15 +11,10 @@ from startctfutil.readme import README, ReadmeSection, HeadingLevel
 from startctfutil.shared import STATE
 from startctfutil.tools import Tool, run
 
-# TODO: Find a better way to do this
-group = arg_parser.add_argument_group("ffuf")
 
-# group.add_argument("-nSA", "--nmap-all", action="store_true",
-#                    help="Run a full nmap scan on the given ip (all ports, slow)")
-# group.add_argument("--nmap_Pn", action="store_true", help="Don't ping the target")
-# group.add_argument("-nSV", "--no-sV", action="store_true",
-#                         help="Don't run nmap with the -sV flag (don't detect service versions)")
-group.add_argument("--ffuf-args", type=str, help="Extra arguments to pass to ffuf", default="")
+# TODO: Find a better way to do this
+# group = arg_parser.add_argument_group("ffuf")
+# group.add_argument("--ffuf-args", type=str, help="Extra arguments to pass to ffuf", default="")
 
 
 class ffuf(Tool):
@@ -45,10 +40,9 @@ class ffuf(Tool):
         command = f"{self.tool_path} -u http://{get_arg('ip')}:{self.port}/FUZZ -w {wordlist} -o logs/ffuf/{self.port}.json -of json {get_arg('ffuf_args')}"
         return run(command, f"fuff - {get_arg('ip')}:{self.port}")
 
-    def parse_output(self, file: str) -> None:
+    def parse_output(self) -> None:
         # TODO: Docstring
-        port = self.port
-        with open(file, "r") as f:
+        with open(f"logs/ffuf/{self.port}.json", "r") as f:
             data = load(f)
 
         if not data.get("results"):
@@ -76,7 +70,7 @@ class ffuf(Tool):
 
             table.add_row(row)
 
-        section = ReadmeSection(f"Discovered Web Paths (:{port})", HeadingLevel.H3)
+        section = ReadmeSection(f"Discovered Web Paths (:{self.port})", HeadingLevel.H3)
         section.add_content(table.render())
 
         README.add_section(section)

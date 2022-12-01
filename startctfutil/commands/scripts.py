@@ -1,14 +1,14 @@
 import importlib
 import os
 import sys
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentParser
 
-from startctfutil.arg_parser import merge_args
+from startctfutil.arg_parser import set_args, get_arg
 from startctfutil.io import info, error, success
 from startctfutil.scripts import SUPPORTED_SCRIPTS
 
 
-def command_scripts(parent_args: Namespace):
+def command_scripts():
     # TODO: Docstring
     parser = ArgumentParser(description="Download/generate third-party scripts",
                             add_help=False,
@@ -20,15 +20,15 @@ def command_scripts(parent_args: Namespace):
                         help="List all supported 3rd party scripts that can be downloaded/generated",
                         required=False)
 
-    args = merge_args(parser.parse_args(sys.argv[2:]), parent_args)
+    set_args(parser.parse_args(sys.argv[2:]))
 
-    if args.list:
+    if get_arg("list"):
         info("Supported scripts:")
         for script in SUPPORTED_SCRIPTS:
             info(f"  {script}")
         exit(0)
 
-    if args.script is None:
+    if get_arg("script") is None:
         error("No script specified")
         exit(1)
 
@@ -36,7 +36,7 @@ def command_scripts(parent_args: Namespace):
         error("You must be in a startctf directory to download a script.")
         exit(1)
 
-    to_download = args.script
+    to_download = get_arg("script")
     if to_download is None:
         error("You must specify a script to download.")
         exit(1)
@@ -44,7 +44,6 @@ def command_scripts(parent_args: Namespace):
     if to_download not in SUPPORTED_SCRIPTS:
         error(f"Script '{to_download}' is not supported. Use --list to see a list of supported scripts.")
         exit(1)
-
 
     info(f"Obtaining script '{to_download}'...")
     try:
