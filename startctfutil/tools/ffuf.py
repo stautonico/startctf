@@ -12,9 +12,8 @@ from startctfutil.shared import STATE
 from startctfutil.tools import Tool, run
 
 
-# TODO: Find a better way to do this
-# group = arg_parser.add_argument_group("ffuf")
-# group.add_argument("--ffuf-args", type=str, help="Extra arguments to pass to ffuf", default="")
+def make_args(args_group):
+    args_group.add_argument("--ffuf-args", type=str, help="Extra arguments to pass to ffuf", default="")
 
 
 class ffuf(Tool):

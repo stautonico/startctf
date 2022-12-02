@@ -10,15 +10,16 @@ from startctfutil.shared import STATE
 from startctfutil.tools import Tool, run
 
 
+def make_args(args_group):
+    args_group.add_argument("--nmap-Pn", action="store_true", help="Skip host discovery")
+
+    args_group.add_argument("-nSV", "--nmap-no-sV", action="store_true", help="Skip version detection")
+
+    args_group.add_argument("--nmap-args", type=str, help="Extra arguments to pass to nmap", default="")
+
+
 # TODO: Find a better way to do this
-# group = arg_parser.add_argument_group("nmap")
-# # group.add_argument("-nSA", "--nmap-all", action="store_true",
-# #                    help="Run a full nmap scan on the given ip (all ports, slow)")
-# group.add_argument("--nmap-Pn", action="store_true", help="Don't ping the target")
-# group.add_argument("-nSV", "--no-sV", action="store_true",
-#                    help="Don't run nmap with the -sV flag (don't detect service versions)")
 # group.add_argument("-nmap-ep", "--nmap-exclude-ports", type=str, help="Ports to exclude from the scan", default="")
-# group.add_argument("--nmap-args", type=str, help="Extra arguments to pass to nmap", default="")
 
 
 class nmap(Tool):
@@ -40,7 +41,7 @@ class nmap(Tool):
             if get_arg("nmap_Pn"):
                 command += " -Pn"
 
-            if not get_arg("no_sV"):
+            if not get_arg("nmap_no_sV"):
                 command += " -sV"
 
             if get_arg("exclude_ports") not in ["", None]:

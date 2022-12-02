@@ -1,12 +1,13 @@
+import importlib
 import sys
 from argparse import ArgumentParser
 
 from startctfutil.arg_parser import get_arg, set_args
 from startctfutil.files import create_directory_template
-from startctfutil.io import info, success, warn
+from startctfutil.io import info, success, warn, error
 from startctfutil.readme import README, ReadmeSection, HeadingLevel
 from startctfutil.shared import STATE
-from startctfutil.tools import get_preferred_tool, try_import_preferred_tool
+from startctfutil.tools import get_preferred_tool, try_import_preferred_tool, SUPPORTED_TOOLS
 
 
 def command_start():
@@ -37,6 +38,16 @@ def command_start():
 
     parser.add_argument("-nx", "--no-xterm", action="store_true",
                         help="Don't open new xterm windows for each tool (Output for all tools will be shown in the terminal)")
+
+    for category in SUPPORTED_TOOLS:
+        for tool in SUPPORTED_TOOLS[category]:
+            module = importlib.import_module(f"startctfutil.tools.{tool}")
+            try:
+                module.make_args(parser.add_argument_group(tool))
+            except AttributeError:
+                error(
+                    f"'{tool}' is not implemented correctly. Missing 'make_args' function. Please open an issue on GitHub.")
+                exit(1)
 
     set_args(parser.parse_args(sys.argv[2:]))
 

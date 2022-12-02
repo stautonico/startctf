@@ -1,16 +1,15 @@
 import os
 from threading import Thread
 
-from startctfutil.arg_parser import get_arg, arg_parser
+from startctfutil.arg_parser import get_arg
 from startctfutil.config import read_config_key
 from startctfutil.io import warn
 from startctfutil.shared import STATE
 from startctfutil.tools import Tool, run
 
-# TODO: Find a better way to do this
-group = arg_parser.add_argument_group("gobuster")
 
-group.add_argument("--gobuster-args", type=str, help="Extra arguments to pass to gobuster", default="")
+def make_args(args_group):
+    args_group.add_argument("--gobuster-args", type=str, help="Extra arguments to pass to gobuster", default="")
 
 
 class gobuster(Tool):

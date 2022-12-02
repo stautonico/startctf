@@ -81,6 +81,7 @@ Other options:
         # Call subcommand by name
         handler = self.command_handlers.get(get_arg("command"))
         if not handler:
+            # TODO: Change this message
             print("[DEBUG] Unrecognized command")
             self.root_parser.print_usage()
             exit(1)
