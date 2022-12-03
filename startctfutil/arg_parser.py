@@ -58,6 +58,12 @@ Other options:
         self.root_parser.add_argument("--install-manpage", action="store_true",
                                       help="Downloads and installs the manpage (requires sudo/root)")
 
+        self.root_parser.add_argument("--init--config", action="store_true",
+                                      help="Initialize the config file with default values")
+
+        self.root_parser.add_argument("--config-path", help="Path to the config file",
+                                      default="~/.config/startctf/config.json")
+
         self.root_parser.add_argument("-V", "--version",
                                       action="version",
                                       version=f"startctf v{__version__} by {__author__}\n(https://github.com/stautonico/startctf)")
