@@ -29,10 +29,6 @@ def command_start():
     parser.add_argument("-as", "--auto-scan", action="store_true",
                         help="Try to detect which services are running on the target and run the appropriate tools (-nS or -nSA required)")
 
-    parser.add_argument("-f", "--force", action="store_true",
-                        help="Overwrite existing files (careful, destructive)",
-                        default=False)
-
     parser.add_argument("-st", "--silent-tools", action="store_true",
                         help="Only silence output from tools, but still show status messages")
 

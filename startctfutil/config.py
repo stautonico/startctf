@@ -8,7 +8,7 @@ from startctfutil import HOME_DIR, CONFIG_DEFAULT_VALUES, is_true, is_false
 
 CONFIG = ConfigParser()  # Parsed config object
 
-CONFIG_PATH = os.getenv("STARTCTF_CONFIG_PATH") or os.path.join(HOME_DIR, ".config", "startctf", "ctf.conf")
+CONFIG_PATH = os.getenv("STARTCTF_CONFIG_PATH") or os.path.join(HOME_DIR, ".config", "startctf", "config")
 CONFIG_VERSION = None
 
 

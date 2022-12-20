@@ -5,7 +5,7 @@ __author__ = "Steve Tautonico"
 __copyright__ = "Copyright 2022, Steve Tautonico"
 __credits__ = ["Steve Tautonico"]
 __license__ = "MIT"
-__version__ = "2.0"
+__version__ = "2.0.0"
 
 
 def run_command_and_get_output(command, strip=False):

@@ -16,7 +16,8 @@ def error(text):
 
 
 def warn(text):
-    if not get_arg("silent", "false") and not get_arg("no_warnings", "false"):
+    if (not get_arg("silent", "false") and not get_arg("no_warnings", "false")) and read_config_key("output",
+                                                                                                    "no_warnings") == False:
         if read_config_key("output", "emojis", "true"):
             print(f"[{colorize('⚠️', Colors.FG.YELLOW, {'bold': True})}] {colorize(text, Colors.FG.YELLOW)}")
         else:

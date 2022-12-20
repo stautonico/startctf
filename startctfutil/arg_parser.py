@@ -58,11 +58,18 @@ Other options:
         self.root_parser.add_argument("--install-manpage", action="store_true",
                                       help="Downloads and installs the manpage (requires sudo/root)")
 
-        self.root_parser.add_argument("--init--config", action="store_true",
+        self.root_parser.add_argument("--init-config", action="store_true",
                                       help="Initialize the config file with default values")
 
+        self.root_parser.add_argument("--update-config", action="store_true",
+                                      help="Update the config file to the latest version")
+
         self.root_parser.add_argument("--config-path", help="Path to the config file",
-                                      default="~/.config/startctf/config.json")
+                                      default="~/.config/startctf/config")
+
+        self.root_parser.add_argument("-f", "--force", action="store_true",
+                                      help="Overwrite existing files (careful, destructive)",
+                                      default=False)
 
         self.root_parser.add_argument("-V", "--version",
                                       action="version",

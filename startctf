@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
+import configparser
 import os
 
 import requests
 
-from startctfutil import __version__
-from startctfutil.arg_parser import parse_args, get_arg, run
+from startctfutil import __version__, CONFIG_DEFAULT_VALUES
+from startctfutil.arg_parser import parse_args, get_arg
 from startctfutil.commands import load_commands
 from startctfutil.config import init_config
 from startctfutil.io import info, success, warn, error
@@ -37,8 +38,47 @@ def install_manpage_handler():
                 success("Manpage installed successfully!")
                 exit(0)
 
+
 def init_config_handler():
-    if 
+    config_path = get_arg("config_path",
+                          default=os.path.join(os.path.expanduser("~"), ".config", "startctf", "config"))
+
+    # Check if the given path is a directory or file
+    if os.path.isdir(config_path):
+        config_path = os.path.join(config_path, "config")
+
+    # Check if the config file already exists
+    if os.path.exists(config_path) and not get_arg("force"):
+        warn(f"Config file already exists at {config_path}.")
+        if not input("Overwrite? [y/N] ").lower().startswith("y"):
+            exit(0)
+
+    info(f"Generating config at {config_path}...")
+
+    # Create the new config object
+    config = configparser.ConfigParser()
+    for section, values in CONFIG_DEFAULT_VALUES.items():
+        config.add_section(section)
+        for key, value in values.items():
+            config.set(section, key, str(value))
+
+    # Create the config file
+    try:
+        fd = open(config_path, "w")
+        # Write the config header
+        fd.write(f"# StartCTF Config V{__version__}\n")
+        config.write(fd)
+        fd.close()
+    except (FileNotFoundError, PermissionError) as e:
+        error(f"Could not create config file at {config_path}. ({e})")
+        exit(1)
+
+    success("Config file created successfully!")
+
+def update_config_handler():
+    # TODO: Implement
+    error("This feature is not yet implemented.")
+
 
 def main():
     load_commands()
@@ -57,8 +97,10 @@ def main():
     if get_arg("init_config"):
         init_config_handler()
 
+    if get_arg("update_config"):
+        update_config_handler()
 
-    run()  # Run the command passed to argparse
+    # run()  # Run the command passed to argparse
 
     # TODO: Figure out how to add arguments from a tool into the `start/new` script
     # TODO: Add ability to use rustscan instead of nmap
